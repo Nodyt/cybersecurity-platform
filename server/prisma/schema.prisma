@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  role         String   @default("STUDENT")
+  riskScore    Int      @default(50)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  auditLogs    AuditLog[]
+  trainingProgress TrainingProgress[]
+  simulationAttempts SimulationAttempt[]
+}
+
+model Module {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  videoUrl    String?
+  type        String   @default("VIDEO") // VIDEO, QUIZ
+  riskReduction Int    @default(5)
+  theory      String?
+  quizData    String?  // JSON string containing questions
+  createdAt   DateTime @default(now())
+  
+  progress    TrainingProgress[]
+}
+
+model TrainingProgress {
+  id        String   @id @default(uuid())
+  userId    String
+  moduleId  String
+  status    String   @default("PENDING") // PENDING, COMPLETED, FAILED
+  attempts  Int      @default(0)
+  score     Int      @default(0)
+  completedAt DateTime?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  module    Module   @relation(fields: [moduleId], references: [id])
+
+  @@unique([userId, moduleId])
+}
+
+// Replaces PhishingEvent
+model Simulation {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  difficulty  String   @default("MEDIUM") // EASY, MEDIUM, HARD
+  sender      String
+  subject     String
+  content     String   // The HTML/Text content of the fake email
+  isPhishing  Boolean
+  explanation String   // Why it is or isn't phishing
+  createdAt   DateTime @default(now())
+  
+  attempts    SimulationAttempt[]
+}
+
+model SimulationAttempt {
+  id           String   @id @default(uuid())
+  userId       String
+  simulationId String
+  verdict      String   // PHISHING, SAFE
+  isCorrect    Boolean
+  createdAt    DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id])
+  simulation Simulation @relation(fields: [simulationId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+}

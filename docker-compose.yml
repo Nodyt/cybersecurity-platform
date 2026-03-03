@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # 1. Base de Datos (PostgreSQL)
+  postgres:
+    image: postgres:16-alpine
+    container_name: cyber_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-securepassword}
+      POSTGRES_DB: cyber_platform
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - cyber_net
+
+  # 2. Motor de Automatización (N8n)
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    container_name: cyber_n8n
+    restart: always
+    environment:
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=America/Bogota
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - cyber_net
+    depends_on:
+      - postgres
+
+  # 3. Backend (Node.js) - Dev Mode
+  # backend:
+  #   build: ./server
+  #   container_name: cyber_api
+  #   volumes:
+  #     - ./server:/app
+  #     - /app/node_modules
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - DATABASE_URL=postgresql://admin:securepassword@postgres:5432/cyber_platform
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - cyber_net
+
+networks:
+  cyber_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  n8n_data:
