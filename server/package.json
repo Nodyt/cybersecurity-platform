@@ -41,6 +41,6 @@
     "nodemon": "^3.1.11"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "node dist/seed.js"
   }
 }
