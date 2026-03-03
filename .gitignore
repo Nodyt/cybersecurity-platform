@@ -1,5 +1,5 @@
 node_modules/
-dist/
+# dist/ (removed to allow Easypanel/Docker to see compiled files)
 .env
 .env.production
 *.db
