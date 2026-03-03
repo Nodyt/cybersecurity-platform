@@ -20,5 +20,5 @@ COPY dist ./dist
 
 EXPOSE 3000
 
-# Push a la DB, luego Seed, luego Iniciar servidor
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node prisma/seed.js && node dist/index.js"]
+# Push a la DB y luego Iniciar servidor
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node dist/index.js"]
