@@ -31,7 +31,8 @@ app.use(cors({
         'http://localhost:5174',
         'https://cybersecurity.nodyt.com',
         'https://nodyt.com',
-        'https://www.nodyt.com'
+        'https://www.nodyt.com',
+        'https://cybersecurity-web.wizy91.easypanel.host'
     ],
     credentials: true
 }));
